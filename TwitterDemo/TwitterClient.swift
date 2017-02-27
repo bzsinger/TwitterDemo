@@ -39,7 +39,7 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func favorite(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
-        post("1.1/statuses/1.1/favorites/create.json", parameters: [id], progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+        post("https://api.twitter.com/1.1/favorites/create.json?id=" + String(id), parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
             success(tweet)

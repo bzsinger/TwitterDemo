@@ -70,7 +70,11 @@ class TweetCell: UITableViewCell {
             }
             retweetButton.setTitle("", for: .normal)
             
-            favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+            if tweet.favorited {
+                favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+            } else {
+                favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+            }
             favoriteButton.setTitle("", for: .normal)
         }
     }
@@ -135,10 +139,11 @@ class TweetCell: UITableViewCell {
     }
     
     @IBAction func favoriteButtonClicked(_ sender: Any) {
-        TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (tweet: Tweet) in
+        if tweet.favorited { return }
+        TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (boolResponse: Tweet) in
             self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-            tweet.favoriteCount += 1
-            self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.favoriteCount)
+            self.tweet.favoriteCount += 1
+            self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
         }, failure: { (error: Error) in
             print(error.localizedDescription)
         })
