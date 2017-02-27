@@ -18,6 +18,8 @@ class Tweet: NSObject {
     var retweeted = false
     var favorited = false
     
+    var prevRetweeted = false
+    
     init(dictionary: NSDictionary) {
         id = dictionary["id"] as? Int
         
@@ -46,6 +48,11 @@ class Tweet: NSObject {
         let favoritedStatus = dictionary["favorited"] as? Bool
         if let favorited = favoritedStatus {
             self.favorited = favorited
+        }
+        
+        let prevRetweetedStatus = dictionary["retweeted_status"] as? Bool
+        if let prevRetweeted = prevRetweetedStatus {
+            self.prevRetweeted = prevRetweeted
         }
     }
     

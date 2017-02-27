@@ -19,6 +19,7 @@
 		3B2BCAF51E60B87100B7F7BC /* TwitterClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2BCAF41E60B87100B7F7BC /* TwitterClient.swift */; };
 		3B2BCAF71E60C08200B7F7BC /* TweetsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2BCAF61E60C08200B7F7BC /* TweetsViewController.swift */; };
 		3B2BCAF91E6365BF00B7F7BC /* TweetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2BCAF81E6365BF00B7F7BC /* TweetCell.swift */; };
+		3B7D14EC1E64041D00C57FF3 /* InfiniteScrollActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D14EB1E64041D00C57FF3 /* InfiniteScrollActivityView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 		3B2BCAF41E60B87100B7F7BC /* TwitterClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwitterClient.swift; sourceTree = "<group>"; };
 		3B2BCAF61E60C08200B7F7BC /* TweetsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweetsViewController.swift; sourceTree = "<group>"; };
 		3B2BCAF81E6365BF00B7F7BC /* TweetCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweetCell.swift; sourceTree = "<group>"; };
+		3B7D14EB1E64041D00C57FF3 /* InfiniteScrollActivityView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfiniteScrollActivityView.swift; sourceTree = "<group>"; };
 		EE7388E408CEA75003150AF1 /* Pods_TwitterDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TwitterDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -117,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				3B2BCAF81E6365BF00B7F7BC /* TweetCell.swift */,
+				3B7D14EB1E64041D00C57FF3 /* InfiniteScrollActivityView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -262,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B7D14EC1E64041D00C57FF3 /* InfiniteScrollActivityView.swift in Sources */,
 				3B2BCACC1E5BC3FC00B7F7BC /* User.swift in Sources */,
 				3B2BCACE1E5BC40500B7F7BC /* Tweet.swift in Sources */,
 				3B2BCAC71E5BB44B00B7F7BC /* LoginViewController.swift in Sources */,

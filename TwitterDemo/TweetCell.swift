@@ -85,7 +85,7 @@ class TweetCell: UITableViewCell {
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
+        //super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
     }
@@ -128,7 +128,14 @@ class TweetCell: UITableViewCell {
     }
     
     @IBAction func retweetButtonClicked(_ sender: Any) {
-        if tweet.retweeted { return }
+        if tweet.retweeted {
+            /*TwitterClient.sharedInstance?.getRetweet(id: tweet.id!, success: { (tweet: Tweet) in
+                
+            }, failure: { (error: Error) in
+                print(error.localizedDescription)
+            })*/
+            return
+        }
         TwitterClient.sharedInstance?.retweet(id: tweet.id!, success: { (tweet: Tweet) in
             self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
             tweet.retweetCount += 1
