@@ -12,7 +12,7 @@ import AFNetworking
 class TweetCell: UITableViewCell {
 
     @IBOutlet weak var profileImageView: UIImageView!
-    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var nameButton: UIButton!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var tweetLabel: UILabel!
@@ -35,9 +35,9 @@ class TweetCell: UITableViewCell {
             profileImageView.clipsToBounds = true
             
             if let name = tweetOwner?.name {
-                nameLabel.text = name as String
+                nameButton.setTitle(name as String, for: .normal)
             } else {
-                nameLabel.text = ""
+                nameButton.setTitle("", for: .normal)
             }
             
             if let username = tweetOwner?.screenname {
@@ -99,7 +99,7 @@ class TweetCell: UITableViewCell {
         let currentComponents = (calendar as NSCalendar).components(unitFlags, from: date)
         
         if let day = components.day, day >= 1 {
-            return "\(currentComponents.month!)/\(currentComponents.day!)/\(currentComponents.year!)//"
+            return "\(currentComponents.month!)/\(currentComponents.day!)/\(currentComponents.year!)"
         }
         
         if let hour = components.hour, hour >= 1 {
@@ -130,16 +130,16 @@ class TweetCell: UITableViewCell {
     @IBAction func retweetButtonClicked(_ sender: Any) {
         if tweet.retweeted {
             /*TwitterClient.sharedInstance?.getRetweet(id: tweet.id!, success: { (tweet: Tweet) in
-                
-            }, failure: { (error: Error) in
-                print(error.localizedDescription)
-            })*/
+             
+             }, failure: { (error: Error) in
+             print(error.localizedDescription)
+             })*/
             return
         }
         TwitterClient.sharedInstance?.retweet(id: tweet.id!, success: { (tweet: Tweet) in
             self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
-            tweet.retweetCount += 1
             self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
+            
         }, failure: { (error: Error) in
             print(error.localizedDescription)
         })
@@ -149,7 +149,6 @@ class TweetCell: UITableViewCell {
         if tweet.favorited { return }
         TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (boolResponse: Tweet) in
             self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-            self.tweet.favoriteCount += 1
             self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
         }, failure: { (error: Error) in
             print(error.localizedDescription)

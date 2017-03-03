@@ -14,6 +14,9 @@ class User: NSObject {
     var screenname: NSString?
     var profileUrl: NSURL?
     var tagline: NSString?
+    var numTweets: Int?
+    var numFollowers: Int?
+    var numFollowing: Int?
 
     var dictionary: NSDictionary?
     
@@ -21,12 +24,16 @@ class User: NSObject {
         self.dictionary = dictionary
         
         name = dictionary["name"] as? String as NSString?
-        screenname = dictionary["screen_name"] as? String as NSString?
-        let profileUrlString = dictionary["profile_image_url_https"] as? String
+        screenname = dictionary["screen_name"] as! NSString?
         
+        let profileUrlString = dictionary["profile_image_url_https"] as? String
         if let profileUrlString = profileUrlString {
             profileUrl = NSURL(string: profileUrlString)
         }
+        
+        numTweets = dictionary["statuses_count"] as! Int?
+        numFollowers = dictionary["followers_count"] as! Int?
+        numFollowing = dictionary["friends_count"] as! Int?
         
         tagline = dictionary["description"] as? NSString
     }
@@ -60,5 +67,12 @@ class User: NSObject {
             }
             defaults.synchronize()
         }
+    }
+    
+    class func reloadUser() {
+        TwitterClient.sharedInstance?.currentAccount(success: { (user: User) in
+            User.currentUser = user
+        }, failure: { (error: Error) in
+        })
     }
 }

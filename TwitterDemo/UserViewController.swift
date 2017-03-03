@@ -1,20 +1,28 @@
 //
-//  TweetsViewController.swift
+//  UserViewController.swift
 //  TwitterDemo
 //
-//  Created by Benny Singer on 2/24/17.
+//  Created by Benny Singer on 2/27/17.
 //  Copyright © 2017 Benjamin Singer. All rights reserved.
 //
 
 import UIKit
 
-class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
-
-    var tweets: [Tweet]?
+class UserViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
+    
+    @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var usernameLabel: UILabel!
+    @IBOutlet weak var tweetNumberLabel: UILabel!
+    @IBOutlet weak var followerNumberLabel: UILabel!
+    @IBOutlet weak var followingNumberLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var composeButton: UIBarButtonItem!
+    
+    var tweets: [Tweet]?
     
     var isMoreDataLoading = false
-    var loadingMoreView:InfiniteScrollActivityView?
+    var loadingMoreView: InfiniteScrollActivityView?
     var wait = 0;
     
     override func viewDidLoad() {
@@ -42,6 +50,11 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         loadData(reload: true)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        loadData(reload: true)
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let tweets = tweets {
             return tweets.count
@@ -56,27 +69,15 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         return cell
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+
     @IBAction func logoutButtonClicked(_ sender: Any) {
         TwitterClient.sharedInstance?.logout()
     }
-
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
     
     func loadData(reload: Bool) {
         if isMoreDataLoading { return }
@@ -87,6 +88,9 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
             } else {
                 self.tweets! += tweets
             }
+            
+            self.loadUser()
+            
             self.tableView.reloadData()
             
         }, failure: { (error: Error) in
@@ -98,6 +102,19 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         // Stop the loading indicator
         self.loadingMoreView!.stopAnimating()
         wait = 0
+    }
+    
+    func loadUser() {
+        User.reloadUser()
+        self.profileImageView.setImageWith(User.currentUser?.profileUrl as! URL)
+        self.profileImageView.layer.cornerRadius = 8.0
+        self.profileImageView.clipsToBounds = true
+        self.nameLabel.text = User.currentUser?.name as String!
+        self.usernameLabel.text = "@\((User.currentUser?.screenname as String!)!)"
+        
+        self.tweetNumberLabel.text = "\((User.currentUser?.numTweets)!)"
+        self.followerNumberLabel.text = "\((User.currentUser?.numFollowers)!)"
+        self.followingNumberLabel.text = "\((User.currentUser?.numFollowing)!)"
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -129,11 +146,37 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // Hides the RefreshControl
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         loadData(reload: true)
-            
+        
         // Reload the tableView now that there is new data
         tableView.reloadData()
-            
+        
         // Tell the refreshControl to stop spinning
         refreshControl.endRefreshing()
     }
+    
+    @IBAction func nameButtonClicked(_ sender: Any) {
+        performSegue(withIdentifier: "userDetail", sender: (sender as! UIButton).superview?.superview as! TweetCell)
+    }
+
+    @IBAction func didTap(_ sender: Any) {
+        performSegue(withIdentifier: "userDetail", sender: (sender as! UIButton).superview?.superview as! TweetCell)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "tweetDetail" {
+            let destination = segue.destination as! TweetDetailViewController
+            
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPath(for: cell)
+            destination.tweet = tweets![indexPath!.row]
+            tableView.deselectRow(at: indexPath!, animated: true)
+        } else if segue.identifier == "userDetail" {
+            let destination = segue.destination as! UserDetailViewController
+            
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPath(for: cell)
+            destination.user = tweets![indexPath!.row].owner
+        }
+    }
+    
 }
