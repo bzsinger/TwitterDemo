@@ -17,6 +17,7 @@ class Tweet: NSObject {
     var favoriteCount: Int = 0
     var retweeted = false
     var favorited = false
+    var url: URL?
     
     var prevRetweeted = false
     
@@ -53,6 +54,15 @@ class Tweet: NSObject {
         let prevRetweetedStatus = dictionary["retweeted_status"] as? Bool
         if let prevRetweeted = prevRetweetedStatus {
             self.prevRetweeted = prevRetweeted
+        }
+        
+        let textSplit = text?.components(separatedBy: " ")
+        for component in textSplit! {
+            if component.characters.prefix(5).elementsEqual((String("https")?.characters)!)  {
+                self.url = URL(string: component)
+                break
+            }
+            
         }
     }
     

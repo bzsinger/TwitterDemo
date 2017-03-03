@@ -19,8 +19,6 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var composeButton: UIBarButtonItem!
     
-    var tweets: [Tweet]?
-    
     var isMoreDataLoading = false
     var loadingMoreView: InfiniteScrollActivityView?
     var wait = 0;
@@ -47,6 +45,8 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
         insets.bottom += InfiniteScrollActivityView.defaultHeight
         tableView.contentInset = insets
         
+        profileImageView.image = #imageLiteral(resourceName: "profile-Icon")
+        
         loadData(reload: true)
     }
     
@@ -56,16 +56,16 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let tweets = tweets {
+        if let tweets = User.tweets {
             return tweets.count
         }
         return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if tweets == nil { return UITableViewCell() }
+        if User.tweets == nil { return UITableViewCell() }
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
-        cell.tweet = tweets![indexPath.row]
+        cell.tweet = User.tweets![indexPath.row]
         
         return cell
     }
@@ -82,11 +82,12 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     func loadData(reload: Bool) {
         if isMoreDataLoading { return }
         isMoreDataLoading = true
-        TwitterClient.sharedInstance?.homeTimeline(tweets: tweets, reload: reload, success: { (tweets: [Tweet]) in
-            if self.tweets == nil || reload == true {
-                self.tweets = tweets
+        let reloadedTweets: [Tweet]? = nil
+        TwitterClient.sharedInstance?.homeTimeline(tweets: reloadedTweets, reload: reload, success: { (tweets: [Tweet]) in
+            if User.tweets == nil || reload == true {
+                User.tweets = tweets
             } else {
-                self.tweets! += tweets
+                User.tweets! += tweets
             }
             
             self.loadUser()
@@ -118,7 +119,7 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if (tweets != nil && !isMoreDataLoading) {
+        if (User.tweets != nil && !isMoreDataLoading) {
             // Calculate the position of one screen length before the bottom of the results
             let scrollViewContentHeight = tableView.contentSize.height
             let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
@@ -159,7 +160,7 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
 
     @IBAction func didTap(_ sender: Any) {
-        performSegue(withIdentifier: "userDetail", sender: (sender as! UIButton).superview?.superview as! TweetCell)
+        performSegue(withIdentifier: "userDetail", sender: (sender as! UITapGestureRecognizer).view?.superview?.superview as! TweetCell)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -168,15 +169,14 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
             
             let cell = sender as! UITableViewCell
             let indexPath = tableView.indexPath(for: cell)
-            destination.tweet = tweets![indexPath!.row]
+            destination.tweet = User.tweets![indexPath!.row]
             tableView.deselectRow(at: indexPath!, animated: true)
         } else if segue.identifier == "userDetail" {
             let destination = segue.destination as! UserDetailViewController
             
             let cell = sender as! UITableViewCell
             let indexPath = tableView.indexPath(for: cell)
-            destination.user = tweets![indexPath!.row].owner
+            destination.user = User.tweets![indexPath!.row].owner
         }
     }
-    
 }

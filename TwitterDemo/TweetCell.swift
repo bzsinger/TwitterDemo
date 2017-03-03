@@ -118,11 +118,11 @@ class TweetCell: UITableViewCell {
     }
     
     func formatFavoriteRetweetNumbers(number: Int) -> String {
-        if number > 1000 {
-            return "\(number / 1000)k"
-        }
         if number > 1000000 {
-            return "\(number / 1000000)m"
+            return "\(number / 1000000)M"
+        }
+        if number > 1000 {
+            return "\(number / 1000)K"
         }
         return "\(number)"
     }
@@ -154,5 +154,4 @@ class TweetCell: UITableViewCell {
             print(error.localizedDescription)
         })
     }
-    
 }

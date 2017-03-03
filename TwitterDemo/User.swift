@@ -69,6 +69,24 @@ class User: NSObject {
         }
     }
     
+    
+    static var _tweets: [Tweet]?
+    class var tweets: [Tweet]? {
+        get {
+            if _tweets == nil {
+                TwitterClient.sharedInstance?.homeTimeline(tweets: _tweets, reload: false, success: { (tweets: [Tweet]) in
+                    _tweets = tweets
+                }, failure: { (error: Error) in
+                    print(error.localizedDescription)
+                })
+            }
+            return _tweets
+        }
+        set(tweets) {
+            _tweets = tweets
+        }
+    }
+    
     class func reloadUser() {
         TwitterClient.sharedInstance?.currentAccount(success: { (user: User) in
             User.currentUser = user

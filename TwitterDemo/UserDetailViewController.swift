@@ -27,9 +27,9 @@ class UserDetailViewController: UIViewController {
         profileImageView.clipsToBounds = true
         nameLabel.text = user.name as String!
         usernameLabel.text = "@\((user.screenname as String!)!)"
-        tweetNumberLabel.text = "\((user.numTweets)!)"
-        followersNumberLabel.text = "\((user.numFollowers)!)"
-        followingNumberLabel.text = "\((user.numFollowing)!)"
+        tweetNumberLabel.text = formatFavoriteRetweetNumbers(number: user.numTweets)
+        followersNumberLabel.text = formatFavoriteRetweetNumbers(number: user.numFollowers)
+        followingNumberLabel.text = formatFavoriteRetweetNumbers(number: user.numFollowing)
         // Do any additional setup after loading the view.
     }
 
@@ -38,7 +38,17 @@ class UserDetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
+    func formatFavoriteRetweetNumbers(number: Int?) -> String {
+        if number == nil { return "" }
+        if number! > 1000000 {
+            return "\(number! / 1000000)M"
+        }
+        if number! > 1000 {
+            return "\(number! / 1000)K"
+        }
+        return "\(number!)"
+    }
+    
     /*
     // MARK: - Navigation
 

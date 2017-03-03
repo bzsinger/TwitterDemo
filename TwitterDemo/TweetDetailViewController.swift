@@ -20,11 +20,16 @@ class TweetDetailViewController: UIViewController {
     @IBOutlet weak var retweetNumberLabel: UILabel!
     @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var favoriteNumberLabel: UILabel!
+    @IBOutlet var openURLTap: UITapGestureRecognizer!
     
     var tweet: Tweet!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(wasTapped))
+        tweetLabel.isUserInteractionEnabled = true
+        tweetLabel.addGestureRecognizer(tap)
         
         let tweetOwner = tweet.owner
         if let profileUrl = tweetOwner?.profileUrl {
@@ -94,11 +99,11 @@ class TweetDetailViewController: UIViewController {
     }
     
     func formatFavoriteRetweetNumbers(number: Int) -> String {
-        if number > 1000 {
-            return "\(number / 1000)K"
-        }
         if number > 1000000 {
             return "\(number / 1000000)M"
+        }
+        if number > 1000 {
+            return "\(number / 1000)K"
         }
         return "\(number)"
     }
@@ -132,6 +137,11 @@ class TweetDetailViewController: UIViewController {
         })
     }
 
+    func wasTapped() {
+        if let url = tweet.url {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
 
     /*
     // MARK: - Navigation
