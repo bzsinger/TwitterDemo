@@ -21,11 +21,16 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var retweetNumberLabel: UILabel!
     @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var favoriteNumberLabel: UILabel!
+    var retweeted = false
+    var favorited = false
     
     //h/t Victoria
     var tweet: Tweet! {
         didSet {
             let tweetOwner = tweet.owner
+            retweeted = tweet.retweeted
+            favorited = tweet.favorited
+            
             if let profileUrl = tweetOwner?.profileUrl {
                 profileImageView.setImageWith(profileUrl as URL)
             } else {
@@ -141,8 +146,9 @@ class TweetCell: UITableViewCell {
                 let retweetId = tweet.currentUserRetweetId
                 TwitterClient.sharedInstance?.unRetweet(id: retweetId!, success: { (destroyedTweet: Tweet) in
                     self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
-                    self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
-                    tweet.retweeted = false
+                    self.tweet.retweetCount -= 1
+                    self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.retweetCount)
+                    self.tweet.retweeted = false
                 }, failure: { (error: Error) in
                     print("Failed to unretweeet")
                     print(error.localizedDescription)
@@ -155,8 +161,9 @@ class TweetCell: UITableViewCell {
         } else {
             TwitterClient.sharedInstance?.retweet(id: tweet.id!, success: { (tweet: Tweet) in
                 self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
-                self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
-                tweet.retweeted = true
+                self.tweet.retweetCount += 1
+                self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.retweetCount)
+                self.tweet.retweeted = true
             }, failure: { (error: Error) in
                 print("Couldn't retweet")
                 print(error.localizedDescription)
@@ -168,7 +175,9 @@ class TweetCell: UITableViewCell {
         if tweet.favorited {
             TwitterClient.sharedInstance?.unfavorite(id: tweet.id!, success: { (boolResponse: Tweet) in
                 self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+                self.tweet.favoriteCount -= 1
                 self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
+                self.tweet.favorited = false
             }, failure: { (error: Error) in
                 print("Failed to unfavorite")
                 print(error.localizedDescription)
@@ -178,7 +187,9 @@ class TweetCell: UITableViewCell {
         } else {
             TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (boolResponse: Tweet) in
                 self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+                self.tweet.favoriteCount += 1
                 self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
+                self.tweet.favorited = true
             }, failure: { (error: Error) in
                 print("Couldn't favorite")
                 print(error.localizedDescription)

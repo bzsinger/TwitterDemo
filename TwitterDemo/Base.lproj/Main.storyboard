@@ -22,10 +22,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gav-m9-eaa">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gav-m9-eaa">
                                 <rect key="frame" x="91" y="282" width="192" height="102"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.40000000600000002" green="0.80000001190000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="192" id="K1B-V3-bVZ"/>
+                                    <constraint firstAttribute="height" constant="102" id="fxi-0w-0sY"/>
+                                </constraints>
                                 <state key="normal" title="Login with Twitter">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
@@ -35,6 +38,10 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="gav-m9-eaa" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="0ef-dK-XdT"/>
+                            <constraint firstItem="gav-m9-eaa" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="rNs-6E-p6D"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="loginButton" destination="gav-m9-eaa" id="7u8-jA-rpB"/>
@@ -196,7 +203,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FOLLOWERS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aHb-Wn-aaJ">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="FOLLOWERS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aHb-Wn-aaJ">
                                 <rect key="frame" x="123" y="232" width="89" height="18"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <color key="textColor" red="0.60000002379999995" green="0.60000002379999995" blue="0.60000002379999995" alpha="1" colorSpace="calibratedRGB"/>
@@ -363,6 +370,7 @@
                             <constraint firstItem="uzH-u6-n8U" firstAttribute="top" secondItem="Wk3-l5-bX1" secondAttribute="bottom" constant="8" id="53g-FA-8dT"/>
                             <constraint firstItem="aoK-SF-u5Z" firstAttribute="top" secondItem="XEo-QT-xDd" secondAttribute="bottom" constant="8" id="5Kh-rn-MgB"/>
                             <constraint firstItem="L4n-Hv-WTr" firstAttribute="leading" secondItem="4Jg-nY-oDj" secondAttribute="leading" id="9Ms-Ex-d9j"/>
+                            <constraint firstItem="aHb-Wn-aaJ" firstAttribute="centerX" secondItem="ne7-dO-2z7" secondAttribute="centerX" constant="-20" id="AiY-jy-Lah"/>
                             <constraint firstItem="T7d-H8-xS3" firstAttribute="top" secondItem="aoK-SF-u5Z" secondAttribute="bottom" constant="8" id="BO7-nP-gcg"/>
                             <constraint firstItem="Q6G-pU-agd" firstAttribute="centerX" secondItem="ne7-dO-2z7" secondAttribute="centerX" id="Dcr-3m-Cqn"/>
                             <constraint firstItem="d1Z-YO-7aN" firstAttribute="top" secondItem="Q6G-pU-agd" secondAttribute="bottom" constant="17" id="KSR-AE-8da"/>
@@ -377,10 +385,12 @@
                             <constraint firstAttribute="trailing" secondItem="L4n-Hv-WTr" secondAttribute="trailing" constant="16" id="YYu-wc-QeD"/>
                             <constraint firstAttribute="trailing" secondItem="uzH-u6-n8U" secondAttribute="trailing" id="bQ3-3h-39w"/>
                             <constraint firstItem="T7d-H8-xS3" firstAttribute="centerX" secondItem="ne7-dO-2z7" secondAttribute="centerX" id="bWs-Ai-agJ"/>
+                            <constraint firstItem="aHb-Wn-aaJ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Wk3-l5-bX1" secondAttribute="trailing" constant="20" id="gFa-id-X4g"/>
                             <constraint firstItem="9w2-YM-6Y6" firstAttribute="top" secondItem="uzH-u6-n8U" secondAttribute="bottom" id="i5c-IZ-msM"/>
-                            <constraint firstItem="L4n-Hv-WTr" firstAttribute="leading" secondItem="aHb-Wn-aaJ" secondAttribute="trailing" constant="60" id="k6m-Fv-B60"/>
+                            <constraint firstItem="L4n-Hv-WTr" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="aHb-Wn-aaJ" secondAttribute="trailing" constant="20" id="k6m-Fv-B60"/>
                             <constraint firstItem="L4n-Hv-WTr" firstAttribute="bottom" secondItem="Wk3-l5-bX1" secondAttribute="bottom" id="mZy-Iw-Ez4"/>
                             <constraint firstItem="aHb-Wn-aaJ" firstAttribute="leading" secondItem="d1Z-YO-7aN" secondAttribute="leading" id="oBl-vA-jmZ"/>
+                            <constraint firstItem="d1Z-YO-7aN" firstAttribute="centerX" secondItem="ne7-dO-2z7" secondAttribute="centerX" constant="-59.5" id="s6Z-M6-r5E"/>
                             <constraint firstItem="Wk3-l5-bX1" firstAttribute="leading" secondItem="ne7-dO-2z7" secondAttribute="leading" constant="16" id="vpt-85-iWd"/>
                             <constraint firstItem="uzH-u6-n8U" firstAttribute="top" secondItem="aHb-Wn-aaJ" secondAttribute="bottom" constant="8" id="yhR-zC-4vf"/>
                         </constraints>
@@ -490,7 +500,7 @@
                                 <rect key="frame" x="0.0" y="258" width="375" height="409"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="TweetCell" rowHeight="159" id="f4E-6k-RjC" customClass="TweetCell" customModule="TwitterDemo" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="TweetCell" selectionStyle="default" indentationWidth="10" reuseIdentifier="TweetCell" rowHeight="159" id="f4E-6k-RjC" customClass="TweetCell" customModule="TwitterDemo" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="159"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="f4E-6k-RjC" id="Up9-Wp-i4h">
@@ -829,7 +839,7 @@
         <image name="edit-icon" width="30" height="27"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="nd3-OY-u7Q"/>
-        <segue reference="xq1-9W-QFG"/>
+        <segue reference="ff6-WG-ETL"/>
+        <segue reference="s8B-dS-b59"/>
     </inferredMetricsTieBreakers>
 </document>
