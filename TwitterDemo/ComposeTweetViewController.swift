@@ -16,13 +16,17 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var charactersLabel: UILabel!
+    var countColor: UIColor?
     @IBOutlet weak var tweetTextView: UITextView!
+    
+    var preText = ""
+    var user: User? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
         //topBar.backgroundColor = UINavigationController.bar
         UIApplication.shared.statusBarStyle = .default
-        tweetTextView.text = ""
+        tweetTextView.text = preText
         tweetTextView.becomeFirstResponder()
         tweetTextView.delegate = self
         
@@ -31,6 +35,8 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
         profileImageView.clipsToBounds = true
         nameLabel.text = User.currentUser?.name as String?
         usernameLabel.text = User.currentUser?.screenname as String?
+        
+        countColor = charactersLabel.textColor
         // Do any additional setup after loading the view.
     }
 
@@ -41,6 +47,11 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
         charactersLabel.text = "\(140 - tweetTextView.text.characters.count)"
+        if 140 - textView.text.characters.count < 0 {
+            charactersLabel.textColor = UIColor.red
+        } else {
+            charactersLabel.textColor = countColor
+        }
     }
     
     @IBAction func cancelButtonPressed(_ sender: Any) {
@@ -48,7 +59,32 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
     }
 
     @IBAction func tweetButtonPressed(_ sender: Any) {
-        TwitterClient.sharedInstance?.postTweet(tweet: tweetTextView.text, success: { (tweet:Tweet) in
+        if tweetTextView.text.characters.count > 140 {
+            let alertController = UIAlertController(title: "Too Long", message: "Your Tweet is excessively verbose.", preferredStyle: .alert)
+            
+            // create a cancel action
+            let cancelAction = UIAlertAction(title: "Fine, I'll shorten it.", style: .cancel) { (action) in
+                // handle cancel response here. Doing nothing will dismiss the view.
+            }
+            // add the cancel action to the alertController
+            alertController.addAction(cancelAction)
+            self.present(alertController, animated: true) {
+                // optional code for what happens after the alert controller has finished presenting
+            }
+            return
+        }
+        
+        if preText != "" {
+            TwitterClient.sharedInstance?.postTweet(tweet: tweetTextView.text, response: true, id: 0, success: { (tweet:Tweet) in
+                User.tweets?.append(tweet)
+                self.dismiss(animated: true, completion: nil)
+            }, failure: { (error: Error) in
+                print(error.localizedDescription)
+            })
+            return
+        }
+        
+        TwitterClient.sharedInstance?.postTweet(tweet: tweetTextView.text, response: false, id: 0, success: { (tweet:Tweet) in
             User.tweets?.append(tweet) 
             self.dismiss(animated: true, completion: nil)
         }, failure: { (error: Error) in

@@ -15,13 +15,14 @@ class TweetDetailViewController: UIViewController {
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var tweetLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
-    @IBOutlet weak var replyImageView: UIImageView!
+    @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var retweetNumberLabel: UILabel!
     @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var favoriteNumberLabel: UILabel!
     @IBOutlet var openURLTap: UITapGestureRecognizer!
     
+
     var tweet: Tweet!
 
     override func viewDidLoad() {
@@ -67,7 +68,8 @@ class TweetDetailViewController: UIViewController {
         favoriteNumberLabel.text = formatFavoriteRetweetNumbers(number: tweet.favoriteCount)
         retweetNumberLabel.text = formatFavoriteRetweetNumbers(number: tweet.retweetCount)
         
-        replyImageView.image = #imageLiteral(resourceName: "reply-icon")
+        replyButton.setBackgroundImage(#imageLiteral(resourceName: "reply-icon"), for: .normal)
+        replyButton.setTitle("", for: .normal)
         
         if tweet.retweeted {
             retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
@@ -82,6 +84,10 @@ class TweetDetailViewController: UIViewController {
             favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
         }
         favoriteButton.setTitle("", for: .normal)
+        
+        let profileTap = UITapGestureRecognizer(target: self, action: #selector(profileTapped))
+        profileImageView.isUserInteractionEnabled = true
+        profileImageView.addGestureRecognizer(profileTap)
     }
 
     override func didReceiveMemoryWarning() {
@@ -91,11 +97,9 @@ class TweetDetailViewController: UIViewController {
     
     //h/t zemirco (Github)
     func formatDate(date: Date) -> String {
-        let calendar = Calendar.current
-        let unitFlags: NSCalendar.Unit = [.second, .minute, .hour, .day, .weekOfYear, .month, .year]
-        let currentComponents = (calendar as NSCalendar).components(unitFlags, from: date)
-        
-        return "\(currentComponents.month!)/\(currentComponents.day!)/\(currentComponents.year!), \(currentComponents.hour!):\(currentComponents.minute!)"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "M/d/y h:mm a"
+        return dateFormatter.string(from: date)
     }
     
     func formatFavoriteRetweetNumbers(number: Int) -> String {
@@ -136,6 +140,10 @@ class TweetDetailViewController: UIViewController {
             print(error.localizedDescription)
         })
     }
+    
+    @IBAction func replyButtonClicked(_ sender: Any) {
+        performSegue(withIdentifier: "reply", sender: self)
+    }
 
     func wasTapped() {
         if let url = tweet.url {
@@ -143,14 +151,22 @@ class TweetDetailViewController: UIViewController {
         }
     }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "userDetail" {
+            let destination = segue.destination as! UserDetailViewController
+            destination.user = tweet.owner
+            
+        } else if segue.identifier == "reply" {
+            let destination = segue.destination as! ComposeTweetViewController
+            
+            destination.preText = "@\((tweet.owner?.screenname)!) "
+            destination.user = tweet.owner!
+            
+        }
     }
-    */
-
+    
+    func profileTapped() {
+        performSegue(withIdentifier: "userDetail", sender: self)
+    }
+    
 }

@@ -19,6 +19,8 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var composeButton: UIBarButtonItem!
     
+    var numbersShortened: Bool = false
+    
     var isMoreDataLoading = false
     var loadingMoreView: InfiniteScrollActivityView?
     var wait = 0;
@@ -47,12 +49,20 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         profileImageView.image = #imageLiteral(resourceName: "profile-Icon")
         
-        loadData(reload: true)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(numberTapped))
+        tweetNumberLabel.isUserInteractionEnabled = true
+        tweetNumberLabel.addGestureRecognizer(tap)
+        followerNumberLabel.isUserInteractionEnabled = true
+        followerNumberLabel.addGestureRecognizer(tap)
+        followingNumberLabel.isUserInteractionEnabled = true
+        followingNumberLabel.addGestureRecognizer(tap)
+        
+        loadData(reload: true, showError: true)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        loadData(reload: true)
+        loadData(reload: true, showError: false)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -79,7 +89,7 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
         TwitterClient.sharedInstance?.logout()
     }
     
-    func loadData(reload: Bool) {
+    func loadData(reload: Bool, showError: Bool) {
         if isMoreDataLoading { return }
         isMoreDataLoading = true
         let reloadedTweets: [Tweet]? = nil
@@ -92,10 +102,32 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
             
             self.loadUser()
             
+            self.composeButton.isEnabled = true
+            
             self.tableView.reloadData()
             
         }, failure: { (error: Error) in
-            print(error.localizedDescription)
+            
+            if showError {
+                var title = error.localizedDescription
+                
+                if title == "Request failed: client error (429)" {
+                    title = "We've been sending too many requests to Twitter. Try again in a couple minutes."
+                    self.composeButton.isEnabled = false
+                }
+                
+                let alertController = UIAlertController(title: "Oops!", message: title, preferredStyle: .alert)
+                
+                // create a cancel action
+                let cancelAction = UIAlertAction(title: "OK", style: .cancel) { (action) in
+                    // handle cancel response here. Doing nothing will dismiss the view.
+                }
+                // add the cancel action to the alertController
+                alertController.addAction(cancelAction)
+                self.present(alertController, animated: true) {
+                    // optional code for what happens after the alert controller has finished presenting
+                }
+            }
         })
         
         // Update flag
@@ -113,9 +145,7 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
         self.nameLabel.text = User.currentUser?.name as String!
         self.usernameLabel.text = "@\((User.currentUser?.screenname as String!)!)"
         
-        self.tweetNumberLabel.text = "\((User.currentUser?.numTweets)!)"
-        self.followerNumberLabel.text = "\((User.currentUser?.numFollowers)!)"
-        self.followingNumberLabel.text = "\((User.currentUser?.numFollowing)!)"
+        numberTapped()
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -133,7 +163,7 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
                 
                 if wait >= 20 {
                     // Code to load more results
-                    self.loadData(reload: false)
+                    self.loadData(reload: false, showError: true)
                     self.tableView.reloadData()
                 }
                 wait += 1
@@ -146,13 +176,16 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
     // Updates the tableView with the new data
     // Hides the RefreshControl
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
-        loadData(reload: true)
+        loadData(reload: true, showError: false)
         
         // Reload the tableView now that there is new data
         tableView.reloadData()
         
         // Tell the refreshControl to stop spinning
         refreshControl.endRefreshing()
+    }
+    @IBAction func replyButtonClicked(_ sender: Any) {
+        performSegue(withIdentifier: "reply", sender: (sender as! UIButton).superview?.superview as! TweetCell)
     }
     
     @IBAction func nameButtonClicked(_ sender: Any) {
@@ -177,6 +210,40 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
             let cell = sender as! UITableViewCell
             let indexPath = tableView.indexPath(for: cell)
             destination.user = User.tweets![indexPath!.row].owner
+        } else if segue.identifier == "reply" {
+            let destination = segue.destination as! ComposeTweetViewController
+            
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPath(for: cell)
+            destination.preText = "@\((User.tweets![indexPath!.row].owner!.screenname)!) "
+            destination.user = User.tweets![indexPath!.row].owner!
+            
         }
     }
+    
+    func numberTapped() {
+        if numbersShortened {
+            tweetNumberLabel.text = "\((User.currentUser?.numTweets)!)"
+            followerNumberLabel.text = "\((User.currentUser?.numFollowers)!)"
+            followingNumberLabel.text = "\((User.currentUser?.numFollowing)!)"
+            numbersShortened = false
+        } else {
+            tweetNumberLabel.text = formatNumbers(number: User.currentUser?.numTweets)
+            followerNumberLabel.text = formatNumbers(number: User.currentUser?.numFollowers)
+            followingNumberLabel.text = formatNumbers(number: User.currentUser?.numFollowing)
+            numbersShortened = true
+        }
+    }
+    
+    func formatNumbers(number: Int?) -> String {
+        if number == nil { return "" }
+        if number! > 1000000 {
+            return "\(number! / 1000000)M"
+        }
+        if number! > 1000 {
+            return "\(number! / 1000)K"
+        }
+        return "\(number!)"
+    }
+    
 }

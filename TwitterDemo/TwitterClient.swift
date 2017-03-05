@@ -19,7 +19,6 @@ class TwitterClient: BDBOAuth1SessionManager {
     func currentAccount(success: @escaping (User) -> (), failure: @escaping (Error) -> ()) {
         get("1.1/account/verify_credentials.json", parameters: nil, progress: nil,
             success: { (task: URLSessionDataTask, response: Any?) -> Void in
-                print("account: \(response)")
                 let userDictionary = response as! NSDictionary
                 
                 let user = User(dictionary: userDictionary)
@@ -88,7 +87,12 @@ class TwitterClient: BDBOAuth1SessionManager {
             })
         }
         else {
-            get("1.1/statuses/home_timeline.json?since_id=\(tweets![0].id!)", parameters: nil, progress: nil, success: { (
+            var paramName: [String: String] = [String: String]()
+            print(tweets![(tweets?.count)! - 1].id!)
+            paramName.updateValue("\(tweets![(tweets?.count)! - 1].id!)", forKey: "since_id")
+            paramName.updateValue("20", forKey: "count")
+            
+            get("1.1/statuses/home_timeline.json", parameters: paramName, progress: nil, success: { (
                 task: URLSessionDataTask, response: Any?) -> Void in
                 let dictionaries = response as! [NSDictionary]
                 
@@ -102,11 +106,31 @@ class TwitterClient: BDBOAuth1SessionManager {
         }
     }
     
-    //h/t: http://stackoverflow.com/questions/24551816/swift-encode-url
-    func postTweet(tweet: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+    func userTimeline(screenName: String, tweets: [Tweet]?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+        var paramName: [String: String] = [String: String]()
+        paramName.updateValue(screenName, forKey: "screen_name")
+        
+        get("1.1/statuses/home_timeline.json", parameters: paramName, progress: nil, success: { (
+            task: URLSessionDataTask, response: Any?) -> Void in
+            let dictionaries = response as! [NSDictionary]
+            
+            let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
+            
+            success(tweets)
+            
+        }, failure: { (task: URLSessionDataTask?, error: Error) in
+            failure(error)
+        })
+        
+    }
+    
+    func postTweet(tweet: String, response: Bool, id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
         
         var paramName: [String: String] = [String: String]()
         paramName.updateValue(tweet, forKey: "status")
+        if response == true {
+            paramName.updateValue("\(id)", forKey: "in_reply_to_status_id")
+        }
         
         post("1.1/statuses/update.json", parameters: paramName, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
@@ -130,7 +154,11 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func getRetweet(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
-        get("1.1/statuses/show/id=\(id).json?include_my_retweet=true", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+        var paramName: [String: String] = [String: String]()
+        paramName.updateValue("\(id)", forKey: "id")
+        paramName.updateValue("true", forKey: "include_my_retweet")
+        
+        get("1.1/statuses/show.json", parameters: paramName, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
             success(tweet)
@@ -153,7 +181,21 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func favorite(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
-        post("https://api.twitter.com/1.1/favorites/create.json?id=" + String(id), parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+        post("1.1/favorites/create.json?id=" + String(id), parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let tweet = Tweet(dictionary: response as! NSDictionary)
+            success(tweet)
+            
+        }, failure: { (task: URLSessionDataTask?, error: Error) in
+            failure(error)
+        })
+    }
+    
+    func unfavorite(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        var paramName: [String: String] = [String: String]()
+        paramName.updateValue("\(id)", forKey: "id")
+        
+        post("1.1/favorites/destroy.json", parameters: paramName, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
             success(tweet)
@@ -174,25 +216,5 @@ class TwitterClient: BDBOAuth1SessionManager {
             failure(error)
         })
         
-    }
-    
-    func cleanForURL(string: String) -> String {
-        var cleanedString = string
-        cleanedString = cleanedString.replacingOccurrences(of: " ", with: "%20")
-        cleanedString = cleanedString.replacingOccurrences(of: "\"", with: "%22")
-        cleanedString = cleanedString.replacingOccurrences(of: "#", with: "%23")
-        cleanedString = cleanedString.replacingOccurrences(of: "$", with: "%24")
-        cleanedString = cleanedString.replacingOccurrences(of: "%", with: "%25")
-        cleanedString = cleanedString.replacingOccurrences(of: "&", with: "%26")
-        cleanedString = cleanedString.replacingOccurrences(of: "\'", with: "%27")
-        cleanedString = cleanedString.replacingOccurrences(of: "(", with: "%28")
-        cleanedString = cleanedString.replacingOccurrences(of: ")", with: "%29")
-        cleanedString = cleanedString.replacingOccurrences(of: "+", with: "%2B")
-        cleanedString = cleanedString.replacingOccurrences(of: ",", with: "%2C")
-        cleanedString = cleanedString.replacingOccurrences(of: "-", with: "%2D")
-        cleanedString = cleanedString.replacingOccurrences(of: ".", with: "%2E")
-        cleanedString = cleanedString.replacingOccurrences(of: "//", with: "%2F")
-        
-        return cleanedString
     }
 }

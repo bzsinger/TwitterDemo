@@ -16,7 +16,7 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var tweetLabel: UILabel!
-    @IBOutlet weak var replyImageView: UIImageView!
+    @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var retweetNumberLabel: UILabel!
     @IBOutlet weak var favoriteButton: UIButton!
@@ -61,7 +61,8 @@ class TweetCell: UITableViewCell {
             favoriteNumberLabel.text = formatFavoriteRetweetNumbers(number: tweet.favoriteCount)
             retweetNumberLabel.text = formatFavoriteRetweetNumbers(number: tweet.retweetCount)
 
-            replyImageView.image = #imageLiteral(resourceName: "reply-icon")
+            replyButton.setBackgroundImage(#imageLiteral(resourceName: "reply-icon"), for: .normal)
+            replyButton.setTitle("", for: .normal)
             
             if tweet.retweeted {
                 retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
@@ -129,24 +130,51 @@ class TweetCell: UITableViewCell {
     
     @IBAction func retweetButtonClicked(_ sender: Any) {
         if tweet.retweeted {
-            /*TwitterClient.sharedInstance?.getRetweet(id: tweet.id!, success: { (tweet: Tweet) in
-             
+            var originalTweetId = 0
+            if tweet.prevRetweeted == nil {
+                originalTweetId = tweet.id!
+            } else {
+                originalTweetId = (tweet.prevRetweeted?.id)!
+            }
+            
+            print(originalTweetId)
+            
+            TwitterClient.sharedInstance?.getRetweet(id: originalTweetId, success: { (tweet: Tweet) in
+                let retweetId = tweet.id
+                TwitterClient.sharedInstance?.unRetweet(id: retweetId!, success: { (destroyedTweet: Tweet) in
+                    self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
+                    self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
+                    tweet.retweeted = false
+                }, failure: { (error: Error) in
+                    print("Failed to unretweeet")
+                    print(error.localizedDescription)
+                })
              }, failure: { (error: Error) in
-             print(error.localizedDescription)
-             })*/
+                print("Failed to get tweet")
+                print(error.localizedDescription)
+             })
             return
         }
         TwitterClient.sharedInstance?.retweet(id: tweet.id!, success: { (tweet: Tweet) in
             self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
             self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
-            
+            tweet.retweeted = true
         }, failure: { (error: Error) in
             print(error.localizedDescription)
         })
     }
     
     @IBAction func favoriteButtonClicked(_ sender: Any) {
-        if tweet.favorited { return }
+        if tweet.favorited {
+            TwitterClient.sharedInstance?.unfavorite(id: tweet.id!, success: { (boolResponse: Tweet) in
+                self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+                self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
+            }, failure: { (error: Error) in
+                print(error.localizedDescription)
+            })
+                
+            return
+        }
         TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (boolResponse: Tweet) in
             self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
             self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)

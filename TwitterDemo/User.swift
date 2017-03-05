@@ -12,6 +12,7 @@ class User: NSObject {
     
     var name: NSString?
     var screenname: NSString?
+    var id: Int?
     var profileUrl: NSURL?
     var tagline: NSString?
     var numTweets: Int?
@@ -31,11 +32,30 @@ class User: NSObject {
             profileUrl = NSURL(string: profileUrlString)
         }
         
+        id = dictionary["id"] as! Int?
+        
         numTweets = dictionary["statuses_count"] as! Int?
         numFollowers = dictionary["followers_count"] as! Int?
         numFollowing = dictionary["friends_count"] as! Int?
         
         tagline = dictionary["description"] as? NSString
+    }
+    
+    var _userTweets: [Tweet]?
+    var userTweets: [Tweet]? {
+        get {
+            if _userTweets == nil {
+                TwitterClient.sharedInstance?.userTimeline(screenName: screenname as! String, tweets: _userTweets, success: { (tweets: [Tweet]) in
+                    self._userTweets = tweets
+                }, failure: { (error: Error) in
+                    print(error.localizedDescription)
+                })
+            }
+            return _userTweets
+        }
+        set(userTweets) {
+            _userTweets = userTweets
+        }
     }
     
     static let userDidLogoutNotification = "UserDidLogout"

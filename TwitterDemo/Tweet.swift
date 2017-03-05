@@ -19,7 +19,7 @@ class Tweet: NSObject {
     var favorited = false
     var url: URL?
     
-    var prevRetweeted = false
+    var prevRetweeted: Tweet? = nil
     
     init(dictionary: NSDictionary) {
         id = dictionary["id"] as? Int
@@ -51,9 +51,9 @@ class Tweet: NSObject {
             self.favorited = favorited
         }
         
-        let prevRetweetedStatus = dictionary["retweeted_status"] as? Bool
+        let prevRetweetedStatus = dictionary["retweeted_status"] as? NSDictionary
         if let prevRetweeted = prevRetweetedStatus {
-            self.prevRetweeted = prevRetweeted
+            self.prevRetweeted = Tweet(dictionary: prevRetweeted)
         }
         
         let textSplit = text?.components(separatedBy: " ")
