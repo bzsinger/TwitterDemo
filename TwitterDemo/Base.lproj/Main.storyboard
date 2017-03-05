@@ -691,6 +691,9 @@
                                     <constraint firstAttribute="width" constant="30" id="P34-p7-U4k"/>
                                 </constraints>
                                 <state key="normal" title="RT"/>
+                                <connections>
+                                    <action selector="retweetButtonClicked:" destination="s5A-2O-Rdb" eventType="touchUpInside" id="gzW-yr-cLc"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pOZ-tt-vV7">
                                 <rect key="frame" x="225" y="196" width="30" height="30"/>
@@ -729,7 +732,7 @@
                                     <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="URK-yS-C5F" kind="show" identifier="userDetail" id="PrH-Xn-zOs"/>
+                                    <action selector="nameButtonClicked:" destination="s5A-2O-Rdb" eventType="touchUpInside" id="obT-KH-oz7"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="h" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rwZ-lD-c4e">
@@ -796,6 +799,7 @@
                         <outlet property="tweetLabel" destination="9j3-VV-lmD" id="wl9-DL-Idi"/>
                         <outlet property="usernameLabel" destination="d9U-Pc-Sxx" id="57U-r4-9jj"/>
                         <segue destination="7fk-wT-yqM" kind="presentation" identifier="reply" id="nd3-OY-u7Q"/>
+                        <segue destination="URK-yS-C5F" kind="show" identifier="userDetail" id="xq1-9W-QFG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FsW-Oz-NQf" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -826,6 +830,6 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="nd3-OY-u7Q"/>
-        <segue reference="PrH-Xn-zOs"/>
+        <segue reference="xq1-9W-QFG"/>
     </inferredMetricsTieBreakers>
 </document>

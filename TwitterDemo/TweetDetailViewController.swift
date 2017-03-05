@@ -114,31 +114,67 @@ class TweetDetailViewController: UIViewController {
     
     @IBAction func retweetButtonClicked(_ sender: Any) {
         if tweet.retweeted {
-            /*TwitterClient.sharedInstance?.getRetweet(id: tweet.id!, success: { (tweet: Tweet) in
-             
-             }, failure: { (error: Error) in
-             print(error.localizedDescription)
-             })*/
+            var originalTweetId = 0
+            if tweet.prevRetweeted == nil {
+                originalTweetId = tweet.id!
+            } else {
+                originalTweetId = (tweet.prevRetweeted?.id)!
+            }
+            
+            TwitterClient.sharedInstance?.getRetweet(id: originalTweetId, success: { (tweet: Tweet) in
+                let retweetId = tweet.currentUserRetweetId
+                TwitterClient.sharedInstance?.unRetweet(id: retweetId!, success: { (destroyedTweet: Tweet) in
+                    self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
+                    self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
+                    tweet.retweeted = false
+                }, failure: { (error: Error) in
+                    print("Failed to unretweeet")
+                    print(error.localizedDescription)
+                })
+            }, failure: { (error: Error) in
+                print("Failed to get tweet")
+                print(error.localizedDescription)
+            })
             return
+        } else {
+            TwitterClient.sharedInstance?.retweet(id: tweet.id!, success: { (tweet: Tweet) in
+                self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
+                self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
+                tweet.retweeted = true
+            }, failure: { (error: Error) in
+                print("Couldn't retweet")
+                print(error.localizedDescription)
+            })
         }
-        TwitterClient.sharedInstance?.retweet(id: tweet.id!, success: { (tweet: Tweet) in
-            self.retweetButton.setBackgroundImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
-            //tweet.retweetCount += 1
-            self.retweetNumberLabel.text = self.formatFavoriteRetweetNumbers(number: tweet.retweetCount)
-        }, failure: { (error: Error) in
-            print(error.localizedDescription)
-        })
     }
 
+    @IBAction func nameButtonClicked(_ sender: Any) {
+        performSegue(withIdentifier: "userDetail", sender: self)
+    }
+    
+    func profileTapped() {
+        performSegue(withIdentifier: "userDetail", sender: self)
+    }
+    
+
     @IBAction func favoriteButtonClicked(_ sender: Any) {
-        if tweet.favorited { return }
-        TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (boolResponse: Tweet) in
-            self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-            //self.tweet.favoriteCount += 1
-            self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
-        }, failure: { (error: Error) in
-            print(error.localizedDescription)
-        })
+        if tweet.favorited {
+            TwitterClient.sharedInstance?.unfavorite(id: tweet.id!, success: { (boolResponse: Tweet) in
+                self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+                self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
+            }, failure: { (error: Error) in
+                print(error.localizedDescription)
+            })
+            
+            return
+        } else {
+            TwitterClient.sharedInstance?.favorite(id: tweet.id!, success: { (boolResponse: Tweet) in
+                self.favoriteButton.setBackgroundImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+                self.favoriteNumberLabel.text = self.formatFavoriteRetweetNumbers(number: self.tweet.favoriteCount)
+            }, failure: { (error: Error) in
+                print(error.localizedDescription)
+            })
+        }
     }
     
     @IBAction func replyButtonClicked(_ sender: Any) {
@@ -163,10 +199,6 @@ class TweetDetailViewController: UIViewController {
             destination.user = tweet.owner!
             
         }
-    }
-    
-    func profileTapped() {
-        performSegue(withIdentifier: "userDetail", sender: self)
     }
     
 }
