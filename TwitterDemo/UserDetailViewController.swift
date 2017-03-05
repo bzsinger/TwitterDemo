@@ -20,11 +20,13 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
     var numbersShortened: Bool = false
     
     var user: User!
+    var tweets: [Tweet]!
     
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         profileImageView.setImageWith(user.profileUrl as! URL)
         profileImageView.layer.cornerRadius = 8.0
         profileImageView.clipsToBounds = true
@@ -46,6 +48,8 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
         
         tableView.delegate = self
         tableView.dataSource = self
+        
+        loadTweets()
     }
 
     override func didReceiveMemoryWarning() {
@@ -79,30 +83,49 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if user.userTweets == nil { return UITableViewCell() }
+        if tweets == nil { return UITableViewCell() }
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
-        cell.tweet = user.userTweets![indexPath.row]
+        cell.tweet = tweets![indexPath.row]
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let tweets = user.userTweets {
-            print("we has tweets")
+        if let tweets = tweets {
             return tweets.count
         }
-        print("we has no tweets :(")
         return 0
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    @IBAction func replyButtonClicked(_ sender: Any) {
+        performSegue(withIdentifier: "reply", sender: (sender as! UIButton).superview?.superview as! TweetCell)
     }
-    */
-
+    
+    func loadTweets() {
+        TwitterClient.sharedInstance?.userTimeline(id: user.id!, tweets: tweets, success: { (tweets: [Tweet]) in
+            self.tweets = tweets
+            self.tableView.reloadData()
+        }, failure: { (error: Error) in
+            self.tweets = []
+            print(error.localizedDescription)
+        })
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "tweetDetail" {
+            let destination = segue.destination as! TweetDetailViewController
+            
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPath(for: cell)
+            destination.tweet = User.tweets![indexPath!.row]
+            tableView.deselectRow(at: indexPath!, animated: true)
+        } else if segue.identifier == "reply" {
+            let destination = segue.destination as! ComposeTweetViewController
+            
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPath(for: cell)
+            destination.preText = "@\((User.tweets![indexPath!.row].owner!.screenname)!) "
+            destination.user = User.tweets![indexPath!.row].owner!
+        }
+    }
 }

@@ -106,11 +106,11 @@ class TwitterClient: BDBOAuth1SessionManager {
         }
     }
     
-    func userTimeline(screenName: String, tweets: [Tweet]?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+    func userTimeline(id: String, tweets: [Tweet]?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
         var paramName: [String: String] = [String: String]()
-        paramName.updateValue(screenName, forKey: "screen_name")
+        paramName.updateValue(id, forKey: "user_id")
         
-        get("1.1/statuses/home_timeline.json", parameters: paramName, progress: nil, success: { (
+        get("1.1/statuses/user_timeline.json", parameters: paramName, progress: nil, success: { (
             task: URLSessionDataTask, response: Any?) -> Void in
             let dictionaries = response as! [NSDictionary]
             
@@ -142,7 +142,7 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
 
-    func retweet(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+    func retweet(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
         post("1.1/statuses/retweet/\(id).json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
@@ -153,9 +153,9 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
     
-    func getRetweet(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+    func getRetweet(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
         var paramName: [String: String] = [String: String]()
-        paramName.updateValue("\(id)", forKey: "id")
+        paramName.updateValue(id, forKey: "id")
         paramName.updateValue("true", forKey: "include_my_retweet")
         
         get("1.1/statuses/show.json", parameters: paramName, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
@@ -168,7 +168,7 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
     
-    func unRetweet(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+    func unRetweet(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
         post("1.1/statuses/destroy/\(id).json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
@@ -180,8 +180,8 @@ class TwitterClient: BDBOAuth1SessionManager {
 
     }
     
-    func favorite(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
-        post("1.1/favorites/create.json?id=" + String(id), parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+    func favorite(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        post("1.1/favorites/create.json?id=" + id, parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
             success(tweet)
@@ -191,7 +191,7 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
     
-    func unfavorite(id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+    func unfavorite(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
         var paramName: [String: String] = [String: String]()
         paramName.updateValue("\(id)", forKey: "id")
         

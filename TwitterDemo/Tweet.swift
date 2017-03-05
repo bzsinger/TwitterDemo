@@ -9,7 +9,7 @@
 import UIKit
 
 class Tweet: NSObject {
-    var id: Int?
+    var id: String?
     var owner: User?
     var text: NSString?
     var timestamp: Date?
@@ -19,12 +19,12 @@ class Tweet: NSObject {
     var favorited = false
     var url: URL?
     
-    var currentUserRetweetId: Int?
+    var currentUserRetweetId: String?
     
     var prevRetweeted: Tweet? = nil
     
     init(dictionary: NSDictionary) {
-        id = dictionary["id"] as? Int
+        id = dictionary["id_str"] as? String
         
         text = dictionary["text"] as? String as NSString?
         retweetCount = (dictionary["retweet_count"] as? Int) ?? 0
@@ -60,7 +60,7 @@ class Tweet: NSObject {
         
         let currentUserRetweet = dictionary["current_user_retweet"] as? NSDictionary
         if let currentUserRetweet = currentUserRetweet {
-            currentUserRetweetId = currentUserRetweet["id"] as? Int
+            currentUserRetweetId = currentUserRetweet["id_str"] as? String
         }
         
         let textSplit = text?.components(separatedBy: " ")

@@ -135,7 +135,7 @@ class TweetCell: UITableViewCell {
     
     @IBAction func retweetButtonClicked(_ sender: Any) {
         if tweet.retweeted {
-            var originalTweetId = 0
+            var originalTweetId = ""
             if tweet.prevRetweeted == nil {
                 originalTweetId = tweet.id!
             } else {

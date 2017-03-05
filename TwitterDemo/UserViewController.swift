@@ -206,7 +206,6 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
             tableView.deselectRow(at: indexPath!, animated: true)
         } else if segue.identifier == "userDetail" {
             let destination = segue.destination as! UserDetailViewController
-            
             let cell = sender as! UITableViewCell
             let indexPath = tableView.indexPath(for: cell)
             destination.user = User.tweets![indexPath!.row].owner
@@ -217,7 +216,6 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
             let indexPath = tableView.indexPath(for: cell)
             destination.preText = "@\((User.tweets![indexPath!.row].owner!.screenname)!) "
             destination.user = User.tweets![indexPath!.row].owner!
-            
         }
     }
     
