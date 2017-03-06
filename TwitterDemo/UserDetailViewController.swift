@@ -16,6 +16,10 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
     @IBOutlet weak var tweetNumberLabel: UILabel!
     @IBOutlet weak var followingNumberLabel: UILabel!
     @IBOutlet weak var followersNumberLabel: UILabel!
+    @IBOutlet weak var tweetsLabel: UILabel!
+    @IBOutlet weak var followersLabel: UILabel!
+    @IBOutlet weak var followingLabel: UILabel!
+    @IBOutlet weak var profileBackgroundImageView: UIImageView!
     
     var numbersShortened: Bool = false
     
@@ -30,6 +34,11 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
         profileImageView.setImageWith(user.profileUrl as! URL)
         profileImageView.layer.cornerRadius = 8.0
         profileImageView.clipsToBounds = true
+        
+        if (user.profileBackgroundUrl != nil) {
+            self.profileBackgroundImageView.setImageWith(user.profileBackgroundUrl as! URL)
+        }
+        
         nameLabel.text = user.name as String!
         usernameLabel.text = "@\((user.screenname as String!)!)"
         // Do any additional setup after loading the view.
@@ -46,8 +55,27 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
         
         numberTapped()
         
+        let followersTap = UITapGestureRecognizer(target: self, action: #selector(followersTapped))
+        followersLabel.isUserInteractionEnabled = true
+        followersLabel.addGestureRecognizer(followersTap)
+        
+        tableView.rowHeight = UITableViewAutomaticDimension //use AutoLayout
+        tableView.estimatedRowHeight = 120 //only used for scrollbar height dimension
         tableView.delegate = self
         tableView.dataSource = self
+        
+        /*if let textColor = user.textColor {
+            nameLabel.textColor = textColor
+            usernameLabel.textColor = textColor
+            
+            tweetsLabel.textColor = textColor
+            followersLabel.textColor = textColor
+            followingLabel.textColor = textColor
+            
+            tweetNumberLabel.textColor = textColor
+            followersNumberLabel.textColor = textColor
+            followingNumberLabel.textColor = textColor
+        }*/
         
         loadTweets()
     }
@@ -111,21 +139,30 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
         })
     }
     
+    func followersTapped() {
+        performSegue(withIdentifier: "followerList", sender: self)
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "tweetDetail" {
             let destination = segue.destination as! TweetDetailViewController
             
             let cell = sender as! UITableViewCell
             let indexPath = tableView.indexPath(for: cell)
-            destination.tweet = User.tweets![indexPath!.row]
+            destination.tweet = tweets![indexPath!.row]
             tableView.deselectRow(at: indexPath!, animated: true)
         } else if segue.identifier == "reply" {
             let destination = segue.destination as! ComposeTweetViewController
             
             let cell = sender as! UITableViewCell
             let indexPath = tableView.indexPath(for: cell)
-            destination.preText = "@\((User.tweets![indexPath!.row].owner!.screenname)!) "
-            destination.user = User.tweets![indexPath!.row].owner!
+            destination.preText = "@\((tweets![indexPath!.row].owner!.screenname)!) "
+            destination.user = tweets![indexPath!.row].owner!
+        } else if segue.identifier == "followerList" {
+            let destination = segue.destination as! UserListViewController
+            
+            destination.original = user
+            destination.type = "followers"
         }
     }
 }

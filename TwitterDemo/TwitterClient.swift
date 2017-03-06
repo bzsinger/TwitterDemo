@@ -17,11 +17,19 @@ class TwitterClient: BDBOAuth1SessionManager {
     var loginFailure: ((Error) -> ())?
     
     func currentAccount(success: @escaping (User) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting current account")
         get("1.1/account/verify_credentials.json", parameters: nil, progress: nil,
             success: { (task: URLSessionDataTask, response: Any?) -> Void in
                 let userDictionary = response as! NSDictionary
                 
                 let user = User(dictionary: userDictionary)
+                
+                TwitterClient.sharedInstance?.getProfileBanner(screenname: user.screenname as! String, success: { (url: URL) in
+                    user.profileBackgroundUrl = url as NSURL?
+                    print("profile banner")
+                }, failure: { (error: Error) in
+                    print(error.localizedDescription)
+                })
                 
                 success(user)
                 
@@ -72,21 +80,26 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
     }
     
-    func homeTimeline(tweets: [Tweet]?, reload: Bool, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
-        if tweets == nil || reload == true {
-            get("1.1/statuses/home_timeline.json", parameters: nil, progress: nil, success: { (
-                task: URLSessionDataTask, response: Any?) -> Void in
-                let dictionaries = response as! [NSDictionary]
-                
-                let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
-                
-                success(tweets)
-                
-            }, failure: { (task: URLSessionDataTask?, error: Error) in
-                failure(error)
-            })
-        }
-        else {
+    func homeTimeline(reload: Bool, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting home timeline")
+        //if tweets == nil || reload == true {
+        var paramName: [String: String] = [String: String]()
+        paramName.updateValue("200", forKey: "count")
+        
+        get("1.1/statuses/home_timeline.json", parameters: paramName, progress: nil, success: { (
+            task: URLSessionDataTask, response: Any?) -> Void in
+            let dictionaries = response as! [NSDictionary]
+            
+            let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
+            
+            success(tweets)
+            
+        }, failure: { (task: URLSessionDataTask?, error: Error) in
+            failure(error)
+        })
+       // }
+        /*else {
+         
             var paramName: [String: String] = [String: String]()
             print(tweets![(tweets?.count)! - 1].id!)
             paramName.updateValue("\(tweets![(tweets?.count)! - 1].id!)", forKey: "since_id")
@@ -103,10 +116,11 @@ class TwitterClient: BDBOAuth1SessionManager {
             }, failure: { (task: URLSessionDataTask?, error: Error) in
                 failure(error)
             })
-        }
+        }*/
     }
     
     func userTimeline(id: String, tweets: [Tweet]?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting user timeline")
         var paramName: [String: String] = [String: String]()
         paramName.updateValue(id, forKey: "user_id")
         
@@ -125,6 +139,7 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func postTweet(tweet: String, response: Bool, id: Int, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        print("Posting tweet")
         
         var paramName: [String: String] = [String: String]()
         paramName.updateValue(tweet, forKey: "status")
@@ -143,6 +158,8 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
 
     func retweet(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        print("Posting retweet")
+        
         post("1.1/statuses/retweet/\(id).json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
@@ -154,6 +171,8 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func getRetweet(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting retweet")
+        
         var paramName: [String: String] = [String: String]()
         paramName.updateValue(id, forKey: "id")
         paramName.updateValue("true", forKey: "include_my_retweet")
@@ -169,6 +188,8 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func unRetweet(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        print("Destroying retweet")
+        
         post("1.1/statuses/destroy/\(id).json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
@@ -181,6 +202,7 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func favorite(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting favorites")
         post("1.1/favorites/create.json?id=" + id, parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let tweet = Tweet(dictionary: response as! NSDictionary)
@@ -192,6 +214,7 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func unfavorite(id: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+        print("Removing favorite")
         var paramName: [String: String] = [String: String]()
         paramName.updateValue("\(id)", forKey: "id")
         
@@ -206,15 +229,80 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func getUser(screenname: String, success: @escaping (User) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting user")
         get("1.1/users/show.json?screen_name=\(screenname)", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let userDictionary = response as! NSDictionary
             let user = User(dictionary: userDictionary)
+            
+            TwitterClient.sharedInstance?.getProfileBanner(screenname: user.screenname as! String, success: { (url: URL) in
+                user.profileBackgroundUrl = url as NSURL?
+                print("profile banner")
+            }, failure: { (error: Error) in
+                print(error.localizedDescription)
+            })
+            
             success(user)
             
         }, failure: { (task: URLSessionDataTask?, error: Error) in
             failure(error)
         })
         
+    }
+    
+    func getProfileBanner(screenname: String, success: @escaping (URL) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting profile banner")
+        get("1.1/users/profile_banner.json?screen_name=\(screenname)", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let photoOptions = response as! NSDictionary
+            let urlString = (photoOptions["mobile"] as! NSDictionary)["url"] as? String
+            
+            if let urlString = urlString {
+                success(NSURL(string: urlString) as! URL)
+            }
+            
+        }, failure: { (task: URLSessionDataTask?, error: Error) in
+            failure(error)
+        })
+        
+    }
+    
+    func getFollowers(screenname: String, success: @escaping ([User]) -> (), failure: @escaping (Error) -> ()) {
+        print("Getting followers")
+        var paramName: [String: String] = [String: String]()
+        paramName.updateValue(screenname, forKey: "screen_name")
+        paramName.updateValue("-1", forKey: "cursor")
+        paramName.updateValue("200", forKey: "count")
+        paramName.updateValue("1", forKey: "skip_status")
+        
+        get("1.1/followers/list.json", parameters: paramName, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let userDictionaries = (response as! NSDictionary)["users"] as! [NSDictionary]
+            
+            var users: [User] = []
+            
+            for dict in userDictionaries {
+                users.append(User(dictionary: dict))
+            }
+            
+            success(users)
+            
+        }, failure: { (task: URLSessionDataTask?, error: Error) in
+            failure(error)
+        })
+        
+    }
+
+    
+    func limitStatus() {
+        return
+        /*get("1.1/application/rate_limit_status.json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let responseDict = response as! NSDictionary
+            print(responseDict)
+            
+        }, failure: { (task: URLSessionDataTask?, error: Error) in
+            print(error.localizedDescription)
+        })*/
     }
 }

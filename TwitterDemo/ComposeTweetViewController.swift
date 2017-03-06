@@ -76,7 +76,8 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
         
         if preText != "" {
             TwitterClient.sharedInstance?.postTweet(tweet: tweetTextView.text, response: true, id: 0, success: { (tweet:Tweet) in
-                User.tweets?.append(tweet)
+                User.tweets?.insert(tweet, at: 0)
+                //print("appended")
                 self.dismiss(animated: true, completion: nil)
             }, failure: { (error: Error) in
                 print(error.localizedDescription)
@@ -85,7 +86,8 @@ class ComposeTweetViewController: UIViewController, UITextViewDelegate {
         }
         
         TwitterClient.sharedInstance?.postTweet(tweet: tweetTextView.text, response: false, id: 0, success: { (tweet:Tweet) in
-            User.tweets?.append(tweet) 
+            User.tweets?.insert(tweet, at: 0)
+            //print("appended")
             self.dismiss(animated: true, completion: nil)
         }, failure: { (error: Error) in
             print(error.localizedDescription)

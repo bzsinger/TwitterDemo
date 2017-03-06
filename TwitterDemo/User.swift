@@ -13,10 +13,13 @@ class User: NSObject {
     var screenname: NSString?
     var id: String?
     var profileUrl: NSURL?
+    var profileBackgroundUrl: NSURL?
     var tagline: NSString?
     var numTweets: Int?
     var numFollowers: Int?
     var numFollowing: Int?
+    
+    var textColor: UIColor?
 
     var dictionary: NSDictionary?
     
@@ -29,6 +32,13 @@ class User: NSObject {
         let profileUrlString = dictionary["profile_image_url_https"] as? String
         if let profileUrlString = profileUrlString {
             profileUrl = NSURL(string: profileUrlString)
+        }
+        
+        let profileTextColorString = dictionary["profile_text_color"] as? String
+        let profileTextColor = Int(profileTextColorString!)
+        
+        if let profileTextColor = profileTextColor {
+            textColor = UIColor(netHex: profileTextColor)
         }
         
         id = dictionary["id_str"] as! String?
@@ -76,7 +86,8 @@ class User: NSObject {
     class var tweets: [Tweet]? {
         get {
             if _tweets == nil {
-                TwitterClient.sharedInstance?.homeTimeline(tweets: _tweets, reload: false, success: { (tweets: [Tweet]) in
+                TwitterClient.sharedInstance?.homeTimeline(reload: false, success: { (tweets: [Tweet]) in
+                    print("user reload")
                     _tweets = tweets
                 }, failure: { (error: Error) in
                     print(error.localizedDescription)
