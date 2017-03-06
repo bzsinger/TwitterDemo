@@ -13,7 +13,6 @@ class User: NSObject {
     var screenname: NSString?
     var id: String?
     var profileUrl: NSURL?
-    var profileBackgroundUrl: NSURL?
     var tagline: NSString?
     var numTweets: Int?
     var numFollowers: Int?
@@ -81,13 +80,11 @@ class User: NSObject {
         }
     }
     
-    
     static var _tweets: [Tweet]?
     class var tweets: [Tweet]? {
         get {
             if _tweets == nil {
                 TwitterClient.sharedInstance?.homeTimeline(reload: false, success: { (tweets: [Tweet]) in
-                    print("user reload")
                     _tweets = tweets
                 }, failure: { (error: Error) in
                     print(error.localizedDescription)

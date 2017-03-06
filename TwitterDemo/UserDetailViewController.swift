@@ -35,9 +35,11 @@ class UserDetailViewController: UIViewController, UITableViewDelegate, UITableVi
         profileImageView.layer.cornerRadius = 8.0
         profileImageView.clipsToBounds = true
         
-        if (user.profileBackgroundUrl != nil) {
-            self.profileBackgroundImageView.setImageWith(user.profileBackgroundUrl as! URL)
-        }
+        TwitterClient.sharedInstance?.getProfileBanner(screenname: user.screenname as! String, success: { (url: URL) in
+            self.profileBackgroundImageView.setImageWith(url)
+        }, failure: { (error: Error) in
+            print(error.localizedDescription)
+        })
         
         nameLabel.text = user.name as String!
         usernameLabel.text = "@\((user.screenname as String!)!)"

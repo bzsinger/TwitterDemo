@@ -150,9 +150,15 @@ class UserViewController: UIViewController, UITableViewDelegate, UITableViewData
         profileImageView.layer.cornerRadius = 8.0
         profileImageView.clipsToBounds = true
         
-        if (User.currentUser?.profileBackgroundUrl != nil) {
-            profileBackgroundImageView.setImageWith(User.currentUser?.profileBackgroundUrl as! URL)
-        }
+    
+        profileImageView.image = #imageLiteral(resourceName: "profile-Icon")
+       
+        TwitterClient.sharedInstance?.getProfileBanner(screenname: User.currentUser?.screenname as! String, success: { (url: URL) in
+            self.profileBackgroundImageView.setImageWith(url)
+        }, failure: { (error: Error) in
+            print(error.localizedDescription)
+        })
+
         
         /*if let textColor = User.currentUser?.textColor {
             nameLabel.textColor = textColor

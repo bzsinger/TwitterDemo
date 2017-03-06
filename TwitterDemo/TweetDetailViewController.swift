@@ -20,7 +20,7 @@ class TweetDetailViewController: UIViewController {
     @IBOutlet weak var retweetNumberLabel: UILabel!
     @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var favoriteNumberLabel: UILabel!
-
+    
     var tweet: Tweet!
 
     override func viewDidLoad() {
@@ -192,7 +192,7 @@ class TweetDetailViewController: UIViewController {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "userDetail" {
             let destination = segue.destination as! UserDetailViewController

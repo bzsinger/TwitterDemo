@@ -24,13 +24,6 @@ class TwitterClient: BDBOAuth1SessionManager {
                 
                 let user = User(dictionary: userDictionary)
                 
-                TwitterClient.sharedInstance?.getProfileBanner(screenname: user.screenname as! String, success: { (url: URL) in
-                    user.profileBackgroundUrl = url as NSURL?
-                    print("profile banner")
-                }, failure: { (error: Error) in
-                    print(error.localizedDescription)
-                })
-                
                 success(user)
                 
         }, failure: { (task: URLSessionDataTask?, error: Error) in
@@ -235,13 +228,6 @@ class TwitterClient: BDBOAuth1SessionManager {
             let userDictionary = response as! NSDictionary
             let user = User(dictionary: userDictionary)
             
-            TwitterClient.sharedInstance?.getProfileBanner(screenname: user.screenname as! String, success: { (url: URL) in
-                user.profileBackgroundUrl = url as NSURL?
-                print("profile banner")
-            }, failure: { (error: Error) in
-                print(error.localizedDescription)
-            })
-            
             success(user)
             
         }, failure: { (task: URLSessionDataTask?, error: Error) in
@@ -255,9 +241,10 @@ class TwitterClient: BDBOAuth1SessionManager {
         get("1.1/users/profile_banner.json?screen_name=\(screenname)", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             
             let photoOptions = response as! NSDictionary
-            let urlString = (photoOptions["mobile"] as! NSDictionary)["url"] as? String
+            let mobileDict = photoOptions[photoOptions.allKeys[0]] as! NSDictionary
+            let url = mobileDict["url"] as? String
             
-            if let urlString = urlString {
+            if let urlString = url {
                 success(NSURL(string: urlString) as! URL)
             }
             
