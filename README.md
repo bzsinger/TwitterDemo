@@ -1,4 +1,4 @@
-# Project 5 - *Name of App Here*
+# Project 5 - TwitterDemo
 
 Time spent: 15 hours spent in total
 
