@@ -1,4 +1,4 @@
-# Project 5 - TwitterDemo 🐦
+# TwitterDemo 🐦
 
 ## Video Walkthrough 
 
@@ -28,7 +28,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 - [X] Un-favoriting and un-retweeting
 - [X] Replying
 
-🚫 The following functionality is under-construction: 🔨
+🚫 The following functionality is under construction: 🔨
 
 - [ ] Profile Page
    - [ ] Implement the paging view for the user description.
